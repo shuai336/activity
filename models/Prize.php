@@ -9,7 +9,10 @@ use Yii;
  *
  * @property int $id
  * @property string $prize_name
+ * @property string $value
+ * @property int $role
  * @property int $number
+ * @property int $rest
  */
 class Prize extends \yii\db\ActiveRecord
 {
@@ -27,8 +30,8 @@ class Prize extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['number'], 'integer'],
-            [['prize_name'], 'string', 'max' => 255],
+            [['role', 'number', 'rest'], 'integer'],
+            [['prize_name', 'value'], 'string', 'max' => 255],
         ];
     }
 
@@ -39,8 +42,11 @@ class Prize extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'prize_name' => '奖品名称',
-            'number' => '奖品数量',
+            'prize_name' => 'Prize Name',
+            'value' => 'Value',
+            'role' => 'Role',
+            'number' => 'Number',
+            'rest' => 'Rest',
         ];
     }
 }

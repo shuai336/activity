@@ -130,7 +130,35 @@ class SiteController extends Controller
     public function actionPrize()
     {
         $query = Prize::find();
-        $prize = $query->all();
+        $prize = $query->select(['id', 'prize_name', 'value', 'role'])->where('rest > 0')->asArray()->all();
         return $this->render('prize');
+    }
+
+    public function get_prize_random()
+    {
+        $prize = Prize::find()->select(['id', 'prize_name', 'value', 'role'])->where('rest > 0')->asArray()->all();
+        
+        $prize_index = array_rand($prize);
+
+    }
+    /**
+     * @param array $weight 权重 例如array('a'=>200,'b'=>300,'c'=>500)
+     * @return string key 键名
+     */
+    function roll($weight = array()) {
+        $roll = rand ( 1, array_sum ( $weight ) );
+        // echo $roll."<br>";
+        $_tmpW = 0;
+        $rollnum = 0;
+        foreach ( $weight as $k => $v ) {
+            $min     = $_tmpW;
+            $_tmpW += $v;
+            $max     = $_tmpW;
+            if ($roll > $min && $roll <= $max) {
+                $rollnum = $k;
+                break;
+            }
+        }
+        return $rollnum;
     }
 }
