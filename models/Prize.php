@@ -13,6 +13,7 @@ use Yii;
  * @property int $role
  * @property int $number
  * @property int $rest
+ * @property int $weight
  */
 class Prize extends \yii\db\ActiveRecord
 {
@@ -30,7 +31,7 @@ class Prize extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['role', 'number', 'rest'], 'integer'],
+            [['role', 'number', 'rest', 'weight'], 'integer'],
             [['prize_name', 'value'], 'string', 'max' => 255],
         ];
     }
@@ -47,6 +48,7 @@ class Prize extends \yii\db\ActiveRecord
             'role' => 'Role',
             'number' => 'Number',
             'rest' => 'Rest',
+            'weight' => 'Weight',
         ];
     }
 }
