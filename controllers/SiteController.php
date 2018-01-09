@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Prize;
+use app\models\PrizeToUser;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -129,8 +130,23 @@ class SiteController extends Controller
 
     public function actionPrize()
     {
-        $query = Prize::find();
-        $prize = $query->select(['id', 'prize_name', 'value', 'role', 'weight'])->where('rest > 0')->asArray()->all();
+        $user_id = 1;
+
+        $prize = $this->get_prize_random($user_id);
+        return $this->render('prize');
+    }
+
+    //整理奖品信息，并进行抽奖
+    public function get_prize_random($user_id)
+    {
+        $user_today_game_num = PrizeToUser::find()->where(['data' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
+        //判断用户今日抽奖次数
+        if ( count($user_today_game_num) >= 3 ) {
+            $result = 'You have no chance to play the game today.';
+            return $result;
+        }
+
+        $prize = Prize::find()->select(['id', 'prize_name', 'value', 'role', 'weight'])->where('rest > 0')->asArray()->all();
         $prize_weight = [];
         $weight_total = 0;
         foreach ($prize as $k => $v) {
@@ -140,39 +156,28 @@ class SiteController extends Controller
         $weight_len = strlen($weight_total);
         $nothing_weight = pow(10, $weight_len) - $weight_total;
         $prize_weight['没中奖'] = $nothing_weight;
-        return $this->render('prize');
-    }
 
-    public function get_prize_random()
-    {
-        $prize_weight = [];
-        $prize = Prize::find()->select(['id', 'prize_name', 'value', 'role', 'precent'])->where('rest > 0')->asArray()->all();
-        foreach ($prize as $k => $v) {
-            array_push($prize_weight, [$v['prize_name'] => $v['precent']]);
-        }
-
-
-        $prize_index = array_rand($prize);
-
+        $prize_name = $this->roll($prize_weight);
+        return ;
     }
     /**
+     * 抽奖算法
      * @param array $weight 权重 例如array('a'=>200,'b'=>300,'c'=>500)
      * @return string key 键名
      */
     function roll($weight = array()) {
         $roll = rand ( 1, array_sum ( $weight ) );
-        // echo $roll."<br>";
         $_tmpW = 0;
-        $rollnum = 0;
+        $prize_name = 0;
         foreach ( $weight as $k => $v ) {
             $min     = $_tmpW;
             $_tmpW += $v;
             $max     = $_tmpW;
             if ($roll > $min && $roll <= $max) {
-                $rollnum = $k;
+                $prize_name = $k;
                 break;
             }
         }
-        return $rollnum;
+        return $prize_name;
     }
 }
