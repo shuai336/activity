@@ -66,14 +66,25 @@ class SiteController extends Controller
         if (!$code) {
             return $this->redirect('index');
         }
+        //获取access_token openid
         $access_token_arr = $this->get_access_token($code);
         $access_token = $access_token_arr['access_token'];
+        $openid = $access_token_arr['openId'];
 
-        $wechat_user_info = '';
+        //判断是否关注公众号，没关注的话跳转关注
+        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$openid&lang=zh_CN";
+        $wechat_user_info = $this->send_get($url);
+        $is_subscribe = $wechat_user_info['subscribe'];
+        if (!$is_subscribe) {
+            return $this->redirect('');
+        }
 
+        //保存用户信息
+        $nick_name = $this->get_user_nick_name($access_token);
         $user_info = new UserInfo();
-        $user_info->openid = $access_token['openId'];
-        $user_info->access_token = $access_token['access_token'];
+        $user_info->openid = $openid;
+        $user_info->access_token = $access_token;
+        $user_info->username = $nick_name;
         $user_info->save();
 
         $cookie = Yii::$app->response->cookies;
@@ -154,13 +165,16 @@ class SiteController extends Controller
     }
 
     //获取用户信息
-    public function get_user($access_token)
+    public function get_user_nick_name($access_token)
     {
         $user_url = "https://dopen.weimob.com/c/api/1_0/oauthcenter/session/getuserinfo";
         $user_post_data = array(
             'accesstoken' => $access_token,
         );
         $user = $this->send_post($user_url, $user_post_data);
+        $nick_name = $user['NickName'];
+
+        return $nick_name;
     }
 
     //整理奖品信息，并进行抽奖
