@@ -8,6 +8,7 @@ use app\models\UserInfo;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\Cookie;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -46,52 +47,99 @@ class SiteController extends Controller
         ];
     }
 
-    //首页
+    //首页 进行授权
     public function actionIndex()
     {
-//        $code = $this->get_authorization();
-        return $this->render('code', ['code' => '123']);
-    }
-
-    public function actionCode()
-    {
-        $code = $_GET['code'];
-    }
-
-    public function actionPrize()
-    {
-        $user_id = 1;
-
-        $prize = $this->get_prize_random($user_id);
-        return $this->render('prize');
-    }
-
-    public function actionShowPrize()
-    {
-        $prize = $this->show_user_prize();
-        return;
-    }
-
-    public function get_authorization()
-    {
-        //获取code
-        $client_id = '';
-        $aid = '';
-        $redirect_uri = '';
+        $client_id = Yii::$app->params['client_id'];
+        $aid = Yii::$app->params['aid'];
+        $redirect_uri = Yii::$app->params['redirect_uri'];
         $url = "https://dopen.weimob.com/fuwu/c/oauth2/authorize?enter=wx&view=wx&aid=$aid&response_type=code&scope=default&client_id=$client_id&redirect_uri=$redirect_uri";
         header("Location:$url");
-        $code = $_GET['code'];
-
-        return ;
     }
 
     //获取 access_token
-    public function get_access_token()
+    public function actionCode()
     {
-        $client_id = '';
-        $code = '';
-        $redirect_uri = '';
-        $client_secret = '';
+        //获取 code
+        $code = Yii::$app->request->get('code');
+
+        if (!$code) {
+            return $this->redirect('index');
+        }
+        $access_token_arr = $this->get_access_token($code);
+        $access_token = $access_token_arr['access_token'];
+
+        $wechat_user_info = '';
+
+        $user_info = new UserInfo();
+        $user_info->openid = $access_token['openId'];
+        $user_info->access_token = $access_token['access_token'];
+        $user_info->save();
+
+        $cookie = Yii::$app->response->cookies;
+        $cookie->add(new Cookie([
+            'name' => 'openid',
+//            'value' => $access_token['openId']
+            'value' => '1234567'
+        ]));
+
+        //跳转到抽奖页面
+        return $this->redirect('prize');
+    }
+
+    //请求抽奖 ， 渲染抽奖页面
+    public function actionPrize()
+    {
+        $cookie = Yii::$app->request->cookies;
+        $openid = $cookie->getValue('openid', '');
+        if (UserInfo::find()->where(['openid' => $openid])->exists()) {
+            return $this->render('prize');
+        } else {
+            return $this->redirect('code');
+        }
+    }
+
+    //抽奖， 并返回json -> ajax
+    public function actionGetPrize()
+    {
+//        if (Yii::$app->request->isAjax) {
+        if (1){
+            $cookie = Yii::$app->request->cookies;
+            $openid = $cookie->getValue('openid', '');
+            $user_id = UserInfo::find()->select('id')->where(['openid' => $openid])->one()->id;
+            $prize = $this->get_prize_random($user_id);
+            $json = json_encode($prize);
+            return json_encode($prize);
+        }
+    }
+
+    //奖品展示请求 并渲染
+    public function actionShowPrize()
+    {
+        return $this->render('show-prize');
+    }
+
+    //获取中奖信息进行展示  返回json -> ajax
+    public function actionShowUserPrize()
+    {
+        $prize_to_user = PrizeToUser::find()
+            ->select(['user.username', 'replace(user.phone, substr(user.phone, 4, 4), "****") as phone', 'prize.prize_name'])
+            ->where('prize_to_user.prize_id <> 0')
+            ->leftJoin('user', 'user.id = prize_to_user.user_id')
+            ->leftJoin('prize', 'prize.id = prize_to_user.prize_id')
+            ->asArray()->all();
+
+        if (Yii::$app->request->isAjax) {
+            return json_encode($prize_to_user);
+        }
+    }
+
+    //获取 access_token 相关信息
+    public function get_access_token($code)
+    {
+        $client_id = Yii::$app->params['client_id'];
+        $redirect_uri = Yii::$app->params['redirect_uri'];
+        $client_secret = Yii::$app->params['client_secret'];
         $post_data = array(
             'code' => $code,
             'grant_type' => 'authorization_code',
@@ -100,10 +148,9 @@ class SiteController extends Controller
             'redirect_uri' => $redirect_uri,
         );
         $access_token_url = "https://dopen.weimob.com/fuwu/c/oauth2/token";
-        $get_access_token = $this->send_post($access_token_url, $post_data);
-        $access_token = $get_access_token['access_token'];
+        $access_token_arr = $this->send_post($access_token_url, $post_data);
 
-        return $access_token;
+        return $access_token_arr;
     }
 
     //获取用户信息
@@ -125,8 +172,8 @@ class SiteController extends Controller
 
         //判断用户今日抽奖次数
         if ( count($user_today_game) >= 3 ) {
-            $result = 'You have no chance to play the game today.';
-//            return $result;
+            $user_got_prize['prize_name'] = '没次数';
+            return $user_got_prize;
         }
         //今日抽到奖品 id 列表
         if ($user_today_game) {
@@ -169,25 +216,25 @@ class SiteController extends Controller
 
         //进行抽奖  获取奖品 id
         $prize_id = $this->roll($prize_weight);
-        if ($prize_id == 0) {
-            $result = '没抽中';
-//            return $result;
-        }
 
         //保存中奖信息
-//        $prize_to_user = new PrizeToUser();
-//        $prize_to_user->prize_id = $prize_id;
-//        $prize_to_user->user_id = $user_id;
-//        $prize_to_user->data = date('Y-m-d', time());
+        $prize_to_user = new PrizeToUser();
+        $prize_to_user->prize_id = $prize_id;
+        $prize_to_user->user_id = $user_id;
+        $prize_to_user->data = date('Y-m-d', time());
 //        $prize_to_user->save();
-//        //修改奖品剩余量
-//        $update_prize = Prize::findOne($prize_id);
-//        $update_prize->rest = $update_prize->rest -1;
+
+        if ($prize_id == 0) {
+            $user_got_prize = array('prize_name' => '没中奖');
+            return $user_got_prize;
+        }
+        //修改奖品剩余量
+        $update_prize = Prize::findOne($prize_id);
+        $update_prize->rest = $update_prize->rest -1;
 //        $update_prize->save();
 
-        $prize_id = 5;
         $user_got_prize = array('prize_name' => $prize_info[$prize_id]['prize_name'], 'value' => $prize_info[$prize_id]['value']);
-        return ;
+        return $user_got_prize;
     }
 
     /**
@@ -213,6 +260,13 @@ class SiteController extends Controller
         return $result;
     }
 
+    //发送get请求
+    public function send_get($url)
+    {
+        $result = file_get_contents($url);
+        return $result;
+    }
+
     /**
      * 抽奖算法
      * @param array $weight 权重 例如array('a'=>200,'b'=>300,'c'=>500)
@@ -232,17 +286,5 @@ class SiteController extends Controller
             }
         }
         return $prize_name;
-    }
-
-    //获取中奖信息进行展示
-    public function show_user_prize()
-    {
-        $prize_to_user = PrizeToUser::find()
-            ->select(['user.username', 'replace(user.phone, substr(user.phone, 4, 4), "****") as phone', 'prize.prize_name'])
-            ->leftJoin('user', 'user.id = prize_to_user.user_id')
-            ->leftJoin('prize', 'prize.id = prize_to_user.prize_id')
-            ->asArray()->all();
-
-        return $prize_to_user;
     }
 }

@@ -1,5 +1,9 @@
 <?php
 
 return [
-    'adminEmail' => 'admin@example.com',
+    'client_id' => '',
+    'aid' => '',
+    'redirect_uri' => '',
+    'client_secret' => '',
+    
 ];
