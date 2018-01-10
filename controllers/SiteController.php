@@ -64,35 +64,32 @@ class SiteController extends Controller
         $code = Yii::$app->request->get('code');
 
         if (!$code) {
-            return $this->redirect('index');
+//            return $this->redirect('index');
         }
         //获取access_token openid
-        $access_token_arr = $this->get_access_token($code);
-        $access_token = $access_token_arr['access_token'];
-        $openid = $access_token_arr['openId'];
+//        $access_token_arr = $this->get_access_token($code);
+//        $access_token = $access_token_arr['access_token'];
+//        $openid = $access_token_arr['openId'];
 
         //判断是否关注公众号，没关注的话跳转关注
-        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$openid&lang=zh_CN";
-        $wechat_user_info = $this->send_get($url);
-        $is_subscribe = $wechat_user_info['subscribe'];
-        if (!$is_subscribe) {
-            return $this->redirect('');
-        }
+//        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$openid&lang=zh_CN";
+//        $wechat_user_info = $this->send_get($url);
+//        $is_subscribe = $wechat_user_info['subscribe'];
+//        if (!$is_subscribe) {
+//            return $this->redirect('');
+//        }
 
         //保存用户信息
-        $nick_name = $this->get_user_nick_name($access_token);
-        $user_info = new UserInfo();
-        $user_info->openid = $openid;
-        $user_info->access_token = $access_token;
-        $user_info->username = $nick_name;
-        $user_info->save();
+//        $nick_name = $this->get_user_nick_name($access_token);
+//        $user_info = new UserInfo();
+//        $user_info->openid = $openid;
+//        $user_info->access_token = $access_token;
+//        $user_info->username = $nick_name;
+//        $user_info->save();
 
-        $cookie = Yii::$app->response->cookies;
-        $cookie->add(new Cookie([
-            'name' => 'openid',
-//            'value' => $access_token['openId']
-            'value' => '1234567'
-        ]));
+        $openid = 1234567;
+        $session = Yii::$app->session;
+        $session->set('openid', $openid);
 
         //跳转到抽奖页面
         return $this->redirect('prize');
@@ -101,8 +98,11 @@ class SiteController extends Controller
     //请求抽奖 ， 渲染抽奖页面
     public function actionPrize()
     {
-        $cookie = Yii::$app->request->cookies;
-        $openid = $cookie->getValue('openid', '');
+        $session = Yii::$app->session;
+        $openid = $session->get('openid');
+        if (!$openid) {
+            return $this->redirect('index');
+        }
         if (UserInfo::find()->where(['openid' => $openid])->exists()) {
             return $this->render('prize');
         } else {
@@ -115,9 +115,13 @@ class SiteController extends Controller
     {
 //        if (Yii::$app->request->isAjax) {
         if (1){
-            $cookie = Yii::$app->request->cookies;
-            $openid = $cookie->getValue('openid', '');
-            $user_id = UserInfo::find()->select('id')->where(['openid' => $openid])->one()->id;
+            $session = Yii::$app->session;
+//            $openid = $session->get('openid');
+            $openid = '1234567';
+            if (!$openid) {
+                return $this->redirect('index');
+            }
+            $user_id = UserInfo::find()->select('id')->where(['openid' => $openid]);
             $prize = $this->get_prize_random($user_id);
             $json = json_encode($prize);
             return json_encode($prize);
