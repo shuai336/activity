@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Prize;
 use app\models\PrizeToUser;
 use app\models\UserInfo;
+use Codeception\PHPUnit\ResultPrinter\UI;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -103,8 +104,23 @@ class SiteController extends Controller
         if (!$openid) {
             return $this->redirect('index');
         }
+
+        //获取用户信息
+        $user_name = UserInfo::find()->select('username')->where(['openid' => $openid])->asArray()->one()['username'];
+
+        //获取参加活动人数
+        $user_count = UserInfo::find()->count();
+
+        //获取中奖列表 进行展示
+        $prize_to_user = PrizeToUser::get_prize_to_user();
+
         if (UserInfo::find()->where(['openid' => $openid])->exists()) {
-            return $this->render('prize');
+            return $this->render('prize',
+                [
+                    'prize_to_user' => $prize_to_user,
+                    'user_name' => $user_name,
+                    'user_count' => $user_count,
+                ]);
         } else {
             return $this->redirect('code');
         }
@@ -128,26 +144,15 @@ class SiteController extends Controller
         }
     }
 
-    //奖品展示请求 并渲染
-    public function actionShowPrize()
-    {
-        return $this->render('show-prize');
-    }
-
     //获取中奖信息进行展示  返回json -> ajax
-    public function actionShowUserPrize()
-    {
-        $prize_to_user = PrizeToUser::find()
-            ->select(['user.username', 'replace(user.phone, substr(user.phone, 4, 4), "****") as phone', 'prize.prize_name'])
-            ->where('prize_to_user.prize_id <> 0')
-            ->leftJoin('user', 'user.id = prize_to_user.user_id')
-            ->leftJoin('prize', 'prize.id = prize_to_user.prize_id')
-            ->asArray()->all();
-
-        if (Yii::$app->request->isAjax) {
-            return json_encode($prize_to_user);
-        }
-    }
+//    public function actionShowUserPrize()
+//    {
+//        $prize_to_user = PrizeToUser::get_prize_to_user();
+//
+//        if (Yii::$app->request->isAjax) {
+//            return json_encode($prize_to_user);
+//        }
+//    }
 
     //获取 access_token 相关信息
     public function get_access_token($code)

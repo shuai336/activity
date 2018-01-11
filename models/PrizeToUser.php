@@ -30,6 +30,7 @@ class PrizeToUser extends \yii\db\ActiveRecord
         return [
             [['prize_id', 'user_id'], 'integer'],
             [['data'], 'safe'],
+            [['username', 'phone', 'prize_name']]
         ];
     }
 
@@ -39,10 +40,28 @@ class PrizeToUser extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'prize_id' => 'Prize ID',
-            'user_id' => 'User ID',
+//            'id' => 'ID',
+            'username' => 'username',
+            'phone' => 'phone',
+            'prize_name' => 'prize_name',
             'data' => 'Data',
         ];
+    }
+
+    public function getPrize()
+    {
+        
+    }
+
+    public static function get_prize_to_user()
+    {
+        $prize_to_user = self::find()
+            ->select(['user.username', 'user.region', 'prize.prize_name'])
+            ->where('prize_to_user.prize_id <> 0')
+            ->leftJoin('user', 'user.id = prize_to_user.user_id')
+            ->leftJoin('prize', 'prize.id = prize_to_user.prize_id')
+            ->asArray()->all();
+
+        return $prize_to_user;
     }
 }
