@@ -81,11 +81,12 @@ class SiteController extends Controller
 //        }
 
         //保存用户信息
-//        $nick_name = $this->get_user_nick_name($access_token);
+//        $user = $this->get_user_nick_name($access_token);
 //        $user_info = new UserInfo();
 //        $user_info->openid = $openid;
 //        $user_info->access_token = $access_token;
-//        $user_info->username = $nick_name;
+//        $user_info->username = $user['NickName'];
+//        $user_info->region = $user['City'];
 //        $user_info->save();
 
         $openid = 1234567;
@@ -106,7 +107,14 @@ class SiteController extends Controller
         }
 
         //获取用户信息
-        $user_name = UserInfo::find()->select('username')->where(['openid' => $openid])->asArray()->one()['username'];
+        $user = UserInfo::find()->where(['openid' => $openid])->asArray()->one();
+        $user_name = $user['username'];
+        $user_id = $user['id'];
+        
+        //剩余游戏次数
+        $time = date('Y-m-d H:i:s');
+        $game_time = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->count();
+        $rest_time = 3 - $game_time;
 
         //获取参加活动人数
         $user_count = UserInfo::find()->count();
@@ -120,6 +128,7 @@ class SiteController extends Controller
                     'prize_to_user' => $prize_to_user,
                     'user_name' => $user_name,
                     'user_count' => $user_count,
+                    'rest_time' => $rest_time <= 0 ? 0 :$rest_time,
                 ]);
         } else {
             return $this->redirect('code');
@@ -174,16 +183,15 @@ class SiteController extends Controller
     }
 
     //获取用户信息
-    public function get_user_nick_name($access_token)
+    public function get_user_info($access_token)
     {
         $user_url = "https://dopen.weimob.com/c/api/1_0/oauthcenter/session/getuserinfo";
         $user_post_data = array(
             'accesstoken' => $access_token,
         );
         $user = $this->send_post($user_url, $user_post_data);
-        $nick_name = $user['NickName'];
 
-        return $nick_name;
+        return $user;
     }
 
     //整理奖品信息，并进行抽奖
@@ -191,11 +199,13 @@ class SiteController extends Controller
     {
         $prize_id_role_1 = array();
         $user_today_prize_id = array();
-        $user_today_game = PrizeToUser::find()->where(['data' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
+        $user_today_game = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
+        $rest_time = 3 - count($user_today_game);
 
         //判断用户今日抽奖次数
-        if ( count($user_today_game) >= 3 ) {
+        if ( $rest_time <= 0 ) {
             $user_got_prize['prize_name'] = '没次数';
+            $user_got_prize['rest_time'] = 0;
             return $user_got_prize;
         }
         //今日抽到奖品 id 列表
@@ -244,19 +254,21 @@ class SiteController extends Controller
         $prize_to_user = new PrizeToUser();
         $prize_to_user->prize_id = $prize_id;
         $prize_to_user->user_id = $user_id;
-        $prize_to_user->data = date('Y-m-d', time());
-//        $prize_to_user->save();
+        $prize_to_user->date = date('Y-m-d', time());
+        $prize_to_user->save();
 
         if ($prize_id == 0) {
-            $user_got_prize = array('prize_name' => '没中奖');
+            $user_got_prize['prize_name'] = '没中奖';
+            $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time;
             return $user_got_prize;
         }
         //修改奖品剩余量
         $update_prize = Prize::findOne($prize_id);
         $update_prize->rest = $update_prize->rest -1;
-//        $update_prize->save();
+        $update_prize->save();
 
         $user_got_prize = array('prize_name' => $prize_info[$prize_id]['prize_name'], 'value' => $prize_info[$prize_id]['value']);
+        $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time;
         return $user_got_prize;
     }
 

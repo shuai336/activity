@@ -13,7 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="prize-to-user-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
     
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -21,23 +20,23 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
             [
-                'label' => 'username',
-//                'attribute' => 'username',
-                'value' => 'username',
+                'label' => '用户名',
+                'value' => 'user.username',
             ],
             [
-                'label' => 'phone',
-//                'attribute' => 'user.phone',
-                'value' => 'phone',
+                'label' => '地区',
+                'value' => 'user.region',
             ],
             [
-                'label' => 'prize_name',
-//                'attribute' => 'prize.prize_name',
-                'value' => 'prize_name',
+                'label' => '联系方式',
+                'value' => 'user.phone',
             ],
-            'data',
+            [
+                'label' => '奖品名称',
+                'value' => 'prize.prize_name',
+            ],
+            'date',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

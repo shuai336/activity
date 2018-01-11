@@ -1,0 +1,65 @@
+.havePrize {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: url(../img/中奖.png) no-repeat;
+	background-color: rgba(0,0,0,.88);
+	background-size: 100% 107%;
+	display: none;
+}
+.havePrize .text {
+	color: #fff;
+	width: 100%;
+	text-align: center;
+	font-size: 18px;
+	position: absolute;
+	top: 26%;
+}
+.havePrize .detail {
+	width: 34%;
+    height: 9%;
+    background: url(../img/奖品.png) no-repeat;
+    background-size: 100% 100%;
+    position: absolute;
+    top: 32%;
+    left: 35%;
+}
+.havePrize .detail .left{
+	float: left;
+	width: 65%;
+	height: 100%;
+	text-align: center;
+}
+.havePrize .detail .left span{
+	color: #fff;
+}
+.havePrize .detail .left .dash {
+	font-size: 20px;
+	margin-top: 10%;
+	display: block;
+}
+.havePrize .detail .left .type {
+	font-size: 12px;
+	display: inline-block;
+	padding: 3px 10px;
+	border: 1px solid #fff;
+}
+.havePrize .detail .right {
+	float: right;
+	width: 35%;
+	height: 100%;
+	text-align: center;
+}
+.havePrize .detail .right span{
+	display: inline-block;
+	font-size: 14px;
+}
+.havePrize .detail .right .get1{
+	margin-top: 40%;
+}
+.havePrize .detail .right .get2{
+	margin-left: 19%;
+	font-weight: 900;
+}

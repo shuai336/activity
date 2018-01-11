@@ -19,19 +19,18 @@ class PrizeToUserSearch extends PrizeToUser
     {
         return [
             [['id'], 'integer'],
-            [['username', 'phone', 'prize_name'], 'string'],
-            [['data'], 'safe'],
+            [['date'], 'safe'],
         ];
     }
 
     /**
      * @inheritdoc
      */
-//    public function scenarios()
-//    {
-//        // bypass scenarios() implementation in the parent class
-//        return Model::scenarios();
-//    }
+    public function scenarios()
+    {
+        // bypass scenarios() implementation in the parent class
+        return Model::scenarios();
+    }
 
     /**
      * Creates data provider instance with search query applied
@@ -50,19 +49,16 @@ class PrizeToUserSearch extends PrizeToUser
             'query' => $query,
         ]);
 
-//        $this->load($params);
-//
-//        if (!$this->validate()) {
-//            // uncomment the following line if you do not want to return any records when validation fails
-//            // $query->where('0=1');
-//            return $dataProvider;
-//        }
+        $this->load($params);
+
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
+        }
 
         // grid filtering conditions
-        $query->select(['user.username as username', 'replace(user.phone, substr(user.phone, 4, 4), "****") as phone', 'prize.prize_name as prize_name'])
-            ->where('prize_to_user.prize_id <> 0')
-            ->leftJoin('user', 'user.id = prize_to_user.user_id')
-            ->leftJoin('prize', 'prize.id = prize_to_user.prize_id');
+        $query->andFilterWhere(['like', 'date', $this->date]);
 
         return $dataProvider;
     }

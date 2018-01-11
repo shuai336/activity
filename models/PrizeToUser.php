@@ -29,8 +29,7 @@ class PrizeToUser extends \yii\db\ActiveRecord
     {
         return [
             [['prize_id', 'user_id'], 'integer'],
-            [['data'], 'safe'],
-            [['username', 'phone', 'prize_name']]
+            [['date'], 'safe'],
         ];
     }
 
@@ -40,17 +39,21 @@ class PrizeToUser extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-//            'id' => 'ID',
             'username' => 'username',
             'phone' => 'phone',
             'prize_name' => 'prize_name',
-            'data' => 'Data',
+            'date' => '日期',
         ];
+    }
+
+    public function getUser()
+    {
+        return $this->hasOne(UserInfo::className(), ['id' => 'user_id']);
     }
 
     public function getPrize()
     {
-        
+        return $this->hasOne(Prize::className(), ['id' => 'prize_id']);
     }
 
     public static function get_prize_to_user()

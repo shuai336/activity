@@ -48,4 +48,9 @@ class UserInfo extends \yii\db\ActiveRecord
             'access_token' => 'Access Token',
         ];
     }
+
+    public function getPrizes()
+    {
+        return $this->hasMany(PrizeToUser::className(), ['user_id', 'id']);
+    }
 }
