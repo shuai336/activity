@@ -43,12 +43,12 @@ class Prize extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'prize_name' => 'Prize Name',
-            'value' => 'Value',
-            'role' => 'Role',
-            'number' => 'Number',
-            'rest' => 'Rest',
-            'weight' => 'Weight',
+            'prize_name' => '奖品名称',
+            'value' => '奖品价值',
+            'role' => 'role',
+            'number' => '总量',
+            'rest' => '剩余数量',
+            'weight' => '权重',
         ];
     }
 }

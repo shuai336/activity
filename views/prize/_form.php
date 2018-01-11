@@ -14,10 +14,18 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'prize_name')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'value')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'role')->textInput() ?>
+
     <?= $form->field($model, 'number')->textInput() ?>
 
+    <?= $form->field($model, 'rest')->textInput() ?>
+
+    <?= $form->field($model, 'weight')->textInput() ?>
+
     <div class="form-group">
-        <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('确定修改', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

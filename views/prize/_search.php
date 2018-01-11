@@ -19,10 +19,18 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'prize_name') ?>
 
+    <?= $form->field($model, 'value') ?>
+
+    <?= $form->field($model, 'role') ?>
+
     <?= $form->field($model, 'number') ?>
 
+    <?php // echo $form->field($model, 'rest') ?>
+
+    <?php // echo $form->field($model, 'weight') ?>
+
     <div class="form-group">
-        <?= Html::submitButton('搜索', ['class' => 'btn btn-primary']) ?>
+        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton('Reset', ['class' => 'btn btn-default']) ?>
     </div>
 

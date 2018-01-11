@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Prize;
+use app\models\UserInfo;
 
 /**
- * PrizeSearch represents the model behind the search form of `app\models\Prize`.
+ * UserInfoSearch represents the model behind the search form of `app\models\UserInfo`.
  */
-class PrizeSearch extends Prize
+class UserInfoSearch extends UserInfo
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class PrizeSearch extends Prize
     public function rules()
     {
         return [
-            [['id', 'role', 'number', 'rest', 'weight'], 'integer'],
-            [['prize_name', 'value'], 'safe'],
+            [['id'], 'integer'],
+            [['username', 'phone', 'region', 'openid', 'access_token'], 'safe'],
         ];
     }
 
@@ -41,7 +41,7 @@ class PrizeSearch extends Prize
      */
     public function search($params)
     {
-        $query = Prize::find();
+        $query = UserInfo::find();
 
         // add conditions that should always apply here
 
@@ -60,14 +60,13 @@ class PrizeSearch extends Prize
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'role' => $this->role,
-            'number' => $this->number,
-            'rest' => $this->rest,
-            'weight' => $this->weight,
         ]);
 
-        $query->andFilterWhere(['like', 'prize_name', $this->prize_name])
-            ->andFilterWhere(['like', 'value', $this->value]);
+        $query->andFilterWhere(['like', 'username', $this->username])
+            ->andFilterWhere(['like', 'phone', $this->phone])
+            ->andFilterWhere(['like', 'region', $this->region])
+            ->andFilterWhere(['like', 'openid', $this->openid])
+            ->andFilterWhere(['like', 'access_token', $this->access_token]);
 
         return $dataProvider;
     }

@@ -3,17 +3,16 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Prize;
-use app\models\PrizeSearch;
-use yii\filters\AccessControl;
+use app\models\UserInfo;
+use app\models\UserInfoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * PrizeController implements the CRUD actions for Prize model.
+ * UserInfoController implements the CRUD actions for UserInfo model.
  */
-class PrizeController extends Controller
+class UserInfoController extends Controller
 {
     /**
      * @inheritdoc
@@ -39,12 +38,12 @@ class PrizeController extends Controller
     }
 
     /**
-     * Lists all Prize models.
+     * Lists all UserInfo models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new PrizeSearch();
+        $searchModel = new UserInfoSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -54,29 +53,26 @@ class PrizeController extends Controller
     }
 
     /**
-     * Displays a single Prize model.
+     * Displays a single UserInfo model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id = 0)
+    public function actionView($id)
     {
-        if ($id == 0) {
-            return $this->redirect('index');
-        }
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
     }
 
     /**
-     * Creates a new Prize model.
+     * Creates a new UserInfo model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Prize();
+        $model = new UserInfo();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -88,7 +84,7 @@ class PrizeController extends Controller
     }
 
     /**
-     * Updates an existing Prize model.
+     * Updates an existing UserInfo model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -108,32 +104,29 @@ class PrizeController extends Controller
     }
 
     /**
-     * Deletes an existing Prize model.
+     * Deletes an existing UserInfo model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id = 0)
+    public function actionDelete($id)
     {
-        if ($id == 0) {
-            return $this->redirect('index');
-        }
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Prize model based on its primary key value.
+     * Finds the UserInfo model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Prize the loaded model
+     * @return UserInfo the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Prize::findOne($id)) !== null) {
+        if (($model = UserInfo::findOne($id)) !== null) {
             return $model;
         }
 

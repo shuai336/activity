@@ -29,8 +29,8 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
+        'brandLabel' => '后台管理',
+        'brandUrl' => ['/prize/index'],
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
@@ -38,16 +38,14 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
+            ['label' => '首页', 'url' => ['/prize/index']],
             Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/admin/login']]
+                ['label' => '登陆', 'url' => ['/admin/login']]
             ) : (
                 '<li>'
                 . Html::beginForm(['/admin/logout'], 'post')
                 . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->admin_name . ')',
+                    '退出登陆 (' . Yii::$app->user->identity->admin_name . ')',
                     ['class' => 'btn btn-link logout']
                 )
                 . Html::endForm()
@@ -60,6 +58,10 @@ AppAsset::register($this);
 
     <div class="container">
         <?= Breadcrumbs::widget([
+            'homeLink' => [
+                'label' => '主 页',
+                'url' => ['/prize/index'],
+            ],
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
         <?= Alert::widget() ?>
@@ -71,7 +73,7 @@ AppAsset::register($this);
     <div class="container">
         <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
 
-        <p class="pull-right"><?= Yii::powered() ?></p>
+<!--        <p class="pull-right">--><?//= Yii::powered() ?><!--</p>-->
     </div>
 </footer>
 
