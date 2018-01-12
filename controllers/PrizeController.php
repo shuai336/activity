@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\GameTime;
 use Yii;
 use app\models\Prize;
 use app\models\PrizeSearch;
@@ -122,6 +123,19 @@ class PrizeController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionGameTime()
+    {
+        $model = GameTime::findOne(1);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['game-time', 'id' => $model->id]);
+        }
+
+        return $this->render('game-time', [
+            'model' => $model,
+        ]);
     }
 
     /**

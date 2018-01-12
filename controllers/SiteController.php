@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\GameTime;
 use app\models\Prize;
 use app\models\PrizeToUser;
 use app\models\UserInfo;
@@ -108,9 +109,10 @@ class SiteController extends Controller
         $user_headimgurl = $user['head_imgurl'];
         
         //剩余游戏次数
+        $max_game_time = GameTime::findOne(1)->game_time;
         $time = date('Y-m-d H:i:s');
         $game_time = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->count();
-        $rest_time = 3 - $game_time;
+        $rest_time = $max_game_time - $game_time;
 
         //获取参加活动人数
         $user_count = UserInfo::find()->count();
@@ -194,10 +196,11 @@ class SiteController extends Controller
     //整理奖品信息，并进行抽奖
     public function get_prize_random($user_id)
     {
+        $max_game_time = GameTime::findOne(1)->game_time;
         $prize_id_role_1 = array();
         $user_today_prize_id = array();
         $user_today_game = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
-        $rest_time = 3 - count($user_today_game);
+        $rest_time = $max_game_time - count($user_today_game);
 
         //判断用户今日抽奖次数
         if ( $rest_time <= 0 ) {
