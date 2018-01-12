@@ -278,7 +278,7 @@ class SiteController extends Controller
      * @param array $post_data post键值对数据
      * @return string
      */
-    function send_post($url, $post_data) {
+    public function send_post($url, $post_data) {
 
         $postdata = http_build_query($post_data);
         $options = array(
@@ -307,7 +307,7 @@ class SiteController extends Controller
      * @param array $weight 权重 例如array('a'=>200,'b'=>300,'c'=>500)
      * @return string key 键名
      */
-    function roll($weight = array()) {
+    public function roll($weight = array()) {
         $roll = rand ( 1, array_sum ( $weight ) );
         $_tmpW = 0;
         $prize_name = 0;
@@ -321,5 +321,10 @@ class SiteController extends Controller
             }
         }
         return $prize_name;
+    }
+
+    public function actionTestAjax()
+    {
+        return $this->render('index');
     }
 }

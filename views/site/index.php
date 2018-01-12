@@ -2,6 +2,9 @@
 
 /* @var $this yii\web\View */
 
+use yii\helpers\Html;
+use yii\helpers\Url;
+
 $this->title = 'My Yii Application';
 ?>
 <div class="site-index">
@@ -33,3 +36,23 @@ $this->title = 'My Yii Application';
 
     </div>
 </div>
+
+<?=Html::jsFile('@web/js/jquery.min.js')?>
+<script>
+    get_prize();
+    function get_prize() {
+        $.ajax({
+            type: 'GET',
+            url: '<?= Url::toRoute('/site/get-prize') ?>',
+            data: {},
+            dataType: "json",
+            cache: false,
+            success: function (data) {
+                return data;
+            },
+            error: function (data) {
+                console.log('error');
+            }
+        });
+    }
+</script>
