@@ -140,12 +140,12 @@ class SiteController extends Controller
 //        if (Yii::$app->request->isAjax) {
         if (1){
             $session = Yii::$app->session;
-//            $openid = $session->get('openid');
-            $openid = '1234567';
+            $openid = $session->get('openid');
+//            $openid = '1234567';
             if (!$openid) {
                 return $this->redirect('index');
             }
-            $user_id = UserInfo::find()->select('id')->where(['openid' => $openid]);
+            $user_id = UserInfo::find()->where(['openid' => $openid])->one()->id;
             $prize = $this->get_prize_random($user_id);
             $json = json_encode($prize);
             return json_encode($prize);
@@ -259,7 +259,7 @@ class SiteController extends Controller
 
         if ($prize_id == 0) {
             $user_got_prize['prize_name'] = '没中奖';
-            $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time;
+            $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time-1;
             return $user_got_prize;
         }
         //修改奖品剩余量
@@ -268,7 +268,7 @@ class SiteController extends Controller
         $update_prize->save();
 
         $user_got_prize = array('prize_name' => $prize_info[$prize_id]['prize_name'], 'value' => $prize_info[$prize_id]['value']);
-        $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time;
+        $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time-1;
         return $user_got_prize;
     }
 

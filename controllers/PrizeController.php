@@ -6,7 +6,6 @@ use app\models\GameTime;
 use Yii;
 use app\models\Prize;
 use app\models\PrizeSearch;
-use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

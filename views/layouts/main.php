@@ -39,8 +39,15 @@ AppAsset::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             ['label' => '首页', 'url' => ['/prize/index']],
+            ['label' => '用户信息', 'url' => ['/user-info']],
+            ['label' => '获奖情况', 'url' => ['/prize-to-user']],
+            ['label' => '每日抽奖次数', 'url' => ['/prize/game-time']],
+//            if ( Yii::$app->user->identity) {
+//                return ['lable' => '修改密码', 'url' => ['']];
+//            }
+            Yii::$app->user->identity ? (['label' => '修改密码', 'url' => ['/admin/update?id='.Yii::$app->user->id]]) : (['label' => '']),
             Yii::$app->user->isGuest ? (
-                ['label' => '登陆', 'url' => ['/admin/login']]
+            ['label' => '登陆', 'url' => ['/admin/login']]
             ) : (
                 '<li>'
                 . Html::beginForm(['/admin/logout'], 'post')
@@ -50,7 +57,7 @@ AppAsset::register($this);
                 )
                 . Html::endForm()
                 . '</li>'
-            )
+            ),
         ],
     ]);
     NavBar::end();
@@ -73,7 +80,7 @@ AppAsset::register($this);
     <div class="container">
         <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
 
-<!--        <p class="pull-right">--><?//= Yii::powered() ?><!--</p>-->
+        <!--        <p class="pull-right">--><? //= Yii::powered() ?><!--</p>-->
     </div>
 </footer>
 

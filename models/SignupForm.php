@@ -8,6 +8,7 @@ class SignupForm extends Model
 {
     public $admin_name;
     public $password;
+    public $re_password;
 
     public function rules()
     {

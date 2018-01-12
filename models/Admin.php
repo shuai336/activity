@@ -20,7 +20,15 @@ class Admin extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['admin_name', 'password'], 'required'],
+//            [['admin_name', 'password'], 'required'],
+            ['admin_name', 'filter', 'filter' => 'trim'],
+            ['admin_name', 'required','message' => '用户名不能为空'],
+//            ['admin_name', 'unique', 'targetClass' => 'app\models\Admin', 'message' => '用户名已存在'],
+            ['admin_name', 'string', 'min' => 2, 'max' => 255],
+
+
+            ['password', 'required','message' => '密码不能为空'],
+            ['password', 'string', 'min' => 6, 'message' => '密码至少6位'],
         ];
     }
 

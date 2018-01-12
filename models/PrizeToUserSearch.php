@@ -46,7 +46,7 @@ class PrizeToUserSearch extends PrizeToUser
      */
     public function search($params)
     {
-        $query = PrizeToUser::find();
+        $query = PrizeToUser::find()->where('prize_to_user.prize_id <> 0');
         $query->joinWith(['prize'])
             ->joinWith(['user']);
 
