@@ -12,6 +12,10 @@ use app\models\PrizeToUser;
  */
 class PrizeToUserSearch extends PrizeToUser
 {
+    public $prize_name;
+    public $username;
+    public $region;
+    public $phone;
     /**
      * @inheritdoc
      */
@@ -20,6 +24,7 @@ class PrizeToUserSearch extends PrizeToUser
         return [
             [['id'], 'integer'],
             [['date'], 'safe'],
+            [['prize_name', 'username', 'region', 'phone'], 'string'],
         ];
     }
 
@@ -42,11 +47,24 @@ class PrizeToUserSearch extends PrizeToUser
     public function search($params)
     {
         $query = PrizeToUser::find();
+        $query->joinWith(['prize'])
+            ->joinWith(['user']);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => ['defaultOrder' => ['date' => SORT_DESC]],
+        ]);
+
+        $dataProvider->setSort([
+            'attributes' => [
+                'date',
+                'username',
+                'region',
+                'phone',
+                'prize_name',
+            ]
         ]);
 
         $this->load($params);
@@ -59,6 +77,10 @@ class PrizeToUserSearch extends PrizeToUser
 
         // grid filtering conditions
         $query->andFilterWhere(['like', 'date', $this->date]);
+        $query->andFilterWhere(['like', 'prize.prize_name', $this->prize_name]);
+        $query->andFilterWhere(['like', 'user.username', $this->username])
+            ->andFilterWhere(['like', 'user.region', $this->region])
+            ->andFilterWhere(['like', 'user.phone', $this->phone]);
 
         return $dataProvider;
     }

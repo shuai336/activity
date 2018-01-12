@@ -10,7 +10,7 @@ use Yii;
  * @property int $id
  * @property int $prize_id
  * @property int $user_id
- * @property string $data
+ * @property string $date
  */
 class PrizeToUser extends \yii\db\ActiveRecord
 {

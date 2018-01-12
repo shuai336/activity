@@ -29,6 +29,14 @@ class PrizeToUserController extends Controller
         ];
     }
 
+    public function beforeAction($action)
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['/admin/login']);
+        }
+        return true;
+    }
+
     /**
      * Lists all PrizeToUser models.
      * @return mixed
@@ -43,37 +51,24 @@ class PrizeToUserController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
-
-    /**
-     * Displays a single PrizeToUser model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
+    
     /**
      * Creates a new PrizeToUser model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
-    {
-        $model = new PrizeToUser();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
-    }
+//    public function actionCreate()
+//    {
+//        $model = new PrizeToUser();
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        }
+//
+//        return $this->render('create', [
+//            'model' => $model,
+//        ]);
+//    }
 
     /**
      * Updates an existing PrizeToUser model.
@@ -82,18 +77,18 @@ class PrizeToUserController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
-    }
+//    public function actionUpdate($id)
+//    {
+//        $model = $this->findModel($id);
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            return $this->redirect(['view', 'id' => $model->id]);
+//        }
+//
+//        return $this->render('update', [
+//            'model' => $model,
+//        ]);
+//    }
 
     /**
      * Deletes an existing PrizeToUser model.
@@ -122,6 +117,6 @@ class PrizeToUserController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('没有找到该请求.');
     }
 }

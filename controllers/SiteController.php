@@ -5,15 +5,9 @@ namespace app\controllers;
 use app\models\Prize;
 use app\models\PrizeToUser;
 use app\models\UserInfo;
-use Codeception\PHPUnit\ResultPrinter\UI;
 use Yii;
-use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Cookie;
-use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
