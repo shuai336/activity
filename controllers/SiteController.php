@@ -81,6 +81,7 @@ class SiteController extends Controller
 //        $user_info->access_token = $access_token;
 //        $user_info->username = $user['NickName'];
 //        $user_info->region = $user['City'];
+//        $user_info->head_imgurl = $user['HeadimgUrl'];
 //        $user_info->save();
 
         $openid = 1234567;
@@ -104,6 +105,7 @@ class SiteController extends Controller
         $user = UserInfo::find()->where(['openid' => $openid])->asArray()->one();
         $user_name = $user['username'];
         $user_id = $user['id'];
+        $user_headimgurl = $user['head_imgurl'];
         
         //剩余游戏次数
         $time = date('Y-m-d H:i:s');
@@ -123,6 +125,7 @@ class SiteController extends Controller
                     'user_name' => $user_name,
                     'user_count' => $user_count,
                     'rest_time' => $rest_time <= 0 ? 0 :$rest_time,
+                    'head_imgurl' => $user_headimgurl,
                 ]);
         } else {
             return $this->redirect('code');

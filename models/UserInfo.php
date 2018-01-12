@@ -13,6 +13,7 @@ use Yii;
  * @property string $region
  * @property string $openid
  * @property string $access_token
+ * @property string $head_imgurl
  */
 class UserInfo extends \yii\db\ActiveRecord
 {
@@ -30,7 +31,7 @@ class UserInfo extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'phone', 'region', 'openid', 'access_token'], 'string', 'max' => 255],
+            [['username', 'phone', 'region', 'openid', 'access_token', 'head_imgurl'], 'string', 'max' => 255],
         ];
     }
 
@@ -46,6 +47,7 @@ class UserInfo extends \yii\db\ActiveRecord
             'region' => '地区',
             'openid' => 'Openid',
             'access_token' => 'Access Token',
+            'head_imgurl' => 'Head'
         ];
     }
 
