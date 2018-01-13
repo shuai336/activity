@@ -86,7 +86,7 @@ class SiteController extends Controller
 //        $user_info->head_imgurl = $user['HeadimgUrl'];
 //        $user_info->save();
 
-        $openid = 1234567;
+        $openid = 32;
         $session = Yii::$app->session;
         $session->set('openid', $openid);
 
@@ -138,8 +138,7 @@ class SiteController extends Controller
     //抽奖， 并返回json -> ajax
     public function actionGetPrize()
     {
-//        if (Yii::$app->request->isAjax) {
-        if(1){
+        if (Yii::$app->request->isAjax) {
             $session = Yii::$app->session;
             $openid = $session->get('openid');
             if (!$openid) {
@@ -153,15 +152,17 @@ class SiteController extends Controller
         }
     }
 
-    //保持手机号
+    //保存手机号
     public function actionPhone()
     {
-        if ( Yii::$app->session->get('openid') ) {
-            $phone = Yii::$app->request->post('phone');
+        if ( Yii::$app->request->isPost && Yii::$app->session->get('openid') ) {
+            $phone = Yii::$app->request->post('mobile');
             $openid = Yii::$app->session->get('openid');
             $user = UserInfo::find()->where(['openid' => $openid])->one();
             $user->phone = (string)$phone;
             $user->save();
+
+            return $this->redirect(['/site/prize']);
         } else {
             throw new ForbiddenHttpException;
         }
@@ -206,7 +207,7 @@ class SiteController extends Controller
         $user_today_prize_id = array();
         $user_today_game = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
         $rest_time = $max_game_time - count($user_today_game);
-        $user_phone = UserInfo::find()->select('phone')->where(['id' => $user_id])->exists();
+        $user_phone = UserInfo::find()->select('phone')->where(['id' => $user_id])->one()->phone;
 
         //判断用户今日抽奖次数
         if ( $rest_time <= 0 ) {

@@ -140,12 +140,13 @@ div img{
 }
 
 .farm .joinNum {
-	background: url(../img/num1.png) center no-repeat;
+	background: url(../img/num3.png) center no-repeat;
 	position: absolute;
 	background-size: 72% 100%;
     width: 100%;
     top: 67%;
-    height: 10%;	
+    height: 10%;
+	text-align: center;
 }
 .farm .joinNum span{
 	font-size: 23px;
@@ -155,13 +156,14 @@ div img{
 	letter-spacing: 3px;
 }
 .farm .joinNum .num {
-	position: absolute;
-	left: 36%;
+	width: 25%;
+	text-align: center;
+	display: inline-block;
 }
 .farm .joinNum .times {
 	position: absolute;
-	top: 46%;
-	left: 43%;
+	top: 52%;
+	left: 41%;
 }
 .farm .joinName {
 	position: absolute;
