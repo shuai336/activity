@@ -18,7 +18,8 @@ class PrizeSearch extends Prize
     public function rules()
     {
         return [
-            [['id', 'role', 'number', 'rest', 'weight'], 'integer'],
+            [['id', 'role', 'number', 'rest'], 'integer'],
+            ['weight', 'number'],
             [['prize_name', 'value'], 'safe'],
         ];
     }

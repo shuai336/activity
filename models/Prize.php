@@ -31,7 +31,8 @@ class Prize extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['role', 'number', 'rest', 'weight'], 'integer'],
+            [['role', 'number', 'rest'], 'integer'],
+            ['weight', 'number'],
             [['prize_name', 'value'], 'string', 'max' => 255],
         ];
     }

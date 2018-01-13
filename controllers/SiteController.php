@@ -9,6 +9,7 @@ use app\models\UserInfo;
 use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
+use yii\web\ForbiddenHttpException;
 
 class SiteController extends Controller
 {
@@ -138,29 +139,33 @@ class SiteController extends Controller
     public function actionGetPrize()
     {
 //        if (Yii::$app->request->isAjax) {
-        if (1){
+        if(1){
             $session = Yii::$app->session;
             $openid = $session->get('openid');
-//            $openid = '1234567';
             if (!$openid) {
                 return $this->redirect('index');
             }
             $user_id = UserInfo::find()->where(['openid' => $openid])->one()->id;
             $prize = $this->get_prize_random($user_id);
-            $json = json_encode($prize);
             return json_encode($prize);
+        } else {
+            throw new ForbiddenHttpException;
         }
     }
 
-    //获取中奖信息进行展示  返回json -> ajax
-//    public function actionShowUserPrize()
-//    {
-//        $prize_to_user = PrizeToUser::get_prize_to_user();
-//
-//        if (Yii::$app->request->isAjax) {
-//            return json_encode($prize_to_user);
-//        }
-//    }
+    //保持手机号
+    public function actionPhone()
+    {
+        if ( Yii::$app->session->get('openid') ) {
+            $phone = Yii::$app->request->post('phone');
+            $openid = Yii::$app->session->get('openid');
+            $user = UserInfo::find()->where(['openid' => $openid])->one();
+            $user->phone = (string)$phone;
+            $user->save();
+        } else {
+            throw new ForbiddenHttpException;
+        }
+    }
 
     //获取 access_token 相关信息
     public function get_access_token($code)
@@ -201,11 +206,13 @@ class SiteController extends Controller
         $user_today_prize_id = array();
         $user_today_game = PrizeToUser::find()->where(['date' => date('Y-m-d', time()), 'user_id' => $user_id])->asArray()->all();
         $rest_time = $max_game_time - count($user_today_game);
+        $user_phone = UserInfo::find()->select('phone')->where(['id' => $user_id])->exists();
 
         //判断用户今日抽奖次数
         if ( $rest_time <= 0 ) {
             $user_got_prize['prize_name'] = '没次数';
             $user_got_prize['rest_time'] = 0;
+            $user_got_prize['phone'] = $user_phone ? 1 : 0;
             return $user_got_prize;
         }
         //今日抽到奖品 id 列表
@@ -243,9 +250,7 @@ class SiteController extends Controller
             $prize_info[$v['id']] = $v;
             $weight_total += (int)$v['weight'];
         }
-        $weight_len = strlen($weight_total);
-        $nothing_weight = pow(10, $weight_len) - $weight_total;
-        $prize_weight[0] = $nothing_weight;
+        $prize_weight[0] = 100 - $weight_total;
 
         //进行抽奖  获取奖品 id
         $prize_id = $this->roll($prize_weight);
@@ -260,6 +265,7 @@ class SiteController extends Controller
         if ($prize_id == 0) {
             $user_got_prize['prize_name'] = '没中奖';
             $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time-1;
+            $user_got_prize['phone'] = $user_phone ? 1 : 0;
             return $user_got_prize;
         }
         //修改奖品剩余量
@@ -269,6 +275,7 @@ class SiteController extends Controller
 
         $user_got_prize = array('prize_name' => $prize_info[$prize_id]['prize_name'], 'value' => $prize_info[$prize_id]['value']);
         $user_got_prize['rest_time'] = $rest_time <= 0 ? 0 : $rest_time-1;
+        $user_got_prize['phone'] = $user_phone ? 1 : 0;
         return $user_got_prize;
     }
 
@@ -308,7 +315,7 @@ class SiteController extends Controller
      * @return string key 键名
      */
     public function roll($weight = array()) {
-        $roll = rand ( 1, array_sum ( $weight ) );
+        $roll = 0 + mt_rand() / mt_getrandmax() * 100;
         $_tmpW = 0;
         $prize_name = 0;
         foreach ( $weight as $k => $v ) {

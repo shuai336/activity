@@ -38,7 +38,7 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => '首页', 'url' => ['/prize/index']],
+            ['label' => '奖品信息', 'url' => ['/prize/index']],
             ['label' => '用户信息', 'url' => ['/user-info']],
             ['label' => '获奖情况', 'url' => ['/prize-to-user']],
             ['label' => '每日抽奖次数', 'url' => ['/prize/game-time']],
