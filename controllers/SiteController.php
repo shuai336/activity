@@ -47,11 +47,11 @@ class SiteController extends Controller
     //首页 进行授权
     public function actionIndex()
     {
-        $client_id = Yii::$app->params['client_id'];
-        $aid = Yii::$app->params['aid'];
-        $redirect_uri = Yii::$app->params['redirect_uri'];
-        $url = "https://dopen.weimob.com/fuwu/c/oauth2/authorize?enter=wx&view=wx&aid=$aid&response_type=code&scope=default&client_id=$client_id&redirect_uri=$redirect_uri";
-        header("Location:$url");
+        $redirect_uri = urlencode(Yii::$app->params['redirect_uri']);
+        $appid = Yii::$app->params['appid'];
+        $url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=$appid&redirect_uri=$redirect_uri&response_type=code&scope=snsapi_userinfo#wechat_redirect";
+        header('Location:'.$url);
+        exit;
     }
 
     //获取 access_token
@@ -61,12 +61,12 @@ class SiteController extends Controller
         $code = Yii::$app->request->get('code');
 
         if (!$code) {
-//            return $this->redirect('index');
+            return $this->redirect('index');
         }
         //获取access_token openid
-//        $access_token_arr = $this->get_access_token($code);
-//        $access_token = $access_token_arr['access_token'];
-//        $openid = $access_token_arr['openId'];
+        $access_token_arr = $this->get_access_token($code);
+        $access_token = $access_token_arr['access_token'];
+        $openid = $access_token_arr['openid'];
 
         //判断是否关注公众号，没关注的话跳转关注
 //        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=$access_token&openid=$openid&lang=zh_CN";
@@ -77,16 +77,27 @@ class SiteController extends Controller
 //        }
 
         //保存用户信息
-//        $user = $this->get_user_nick_name($access_token);
-//        $user_info = new UserInfo();
-//        $user_info->openid = $openid;
-//        $user_info->access_token = $access_token;
-//        $user_info->username = $user['NickName'];
-//        $user_info->region = $user['City'];
-//        $user_info->head_imgurl = $user['HeadimgUrl'];
-//        $user_info->save();
+        $user = $this->get_user_info($access_token, $openid);
+        $user_exist = UserInfo::find()->where(['openid' => $openid])->one();
+        if ($user_exist) {
+            $user_exist->access_token = $access_token;
+            if ($user_exist->head_imgurl != $user['headimgurl']) {
+                $user_exist->head_imgurl = $user['headimgurl'];
+            }
+            $user_exist->save();
+        }else{
+            $user_info = new UserInfo();
+            $user_info->openid = $openid;
+            $user_info->access_token = $access_token;
+            $user_info->username = $user['nickname'];
+            $user_info->region = $user['city'];
+            if (!$user_info->region) {
+                $user_info->region = $user['province'];
+            }
+            $user_info->head_imgurl = $user['headimgurl'];
+            $user_info->save();
+        }
 
-        $openid = 32;
         $session = Yii::$app->session;
         $session->set('openid', $openid);
 
@@ -171,32 +182,20 @@ class SiteController extends Controller
     //获取 access_token 相关信息
     public function get_access_token($code)
     {
-        $client_id = Yii::$app->params['client_id'];
-        $redirect_uri = Yii::$app->params['redirect_uri'];
-        $client_secret = Yii::$app->params['client_secret'];
-        $post_data = array(
-            'code' => $code,
-            'grant_type' => 'authorization_code',
-            'client_id' => $client_id,
-            'client_secret' => $client_secret,
-            'redirect_uri' => $redirect_uri,
-        );
-        $access_token_url = "https://dopen.weimob.com/fuwu/c/oauth2/token";
-        $access_token_arr = $this->send_post($access_token_url, $post_data);
-
-        return $access_token_arr;
+        $appid = Yii::$app->params['appid'];
+        $secret = Yii::$app->params['secret'];
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appid&secret=$secret&code=$code&grant_type=authorization_code";
+        $result = $this->send_get($url);
+        return json_decode($result, true);
     }
 
     //获取用户信息
-    public function get_user_info($access_token)
+    public function get_user_info($access_token, $openid)
     {
-        $user_url = "https://dopen.weimob.com/c/api/1_0/oauthcenter/session/getuserinfo";
-        $user_post_data = array(
-            'accesstoken' => $access_token,
-        );
-        $user = $this->send_post($user_url, $user_post_data);
+        $url = "https://api.weixin.qq.com/sns/userinfo?access_token=$access_token&openid=$openid&lang=zh_CN";
+        $user = $this->send_get($url);
 
-        return $user;
+        return json_decode($user, true);
     }
 
     //整理奖品信息，并进行抽奖
@@ -331,8 +330,12 @@ class SiteController extends Controller
         return $prize_name;
     }
 
-    public function actionTestAjax()
+    public function actionTestAjax($code)
     {
-        return $this->render('index');
+        $appid = Yii::$app->params['appid'];
+        $secret = Yii::$app->params['secret'];
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appid&secret=$secret&code=$code&grant_type=authorization_code";
+        $result = $this->send_get($url);
+        return $result;
     }
 }

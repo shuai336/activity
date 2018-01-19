@@ -52,7 +52,8 @@ $this->context->layout = false;
 		<div class="farm">
 			<?= Html::img('@web/img/锄头.png',['class'=>'hoe']) ?>
 			<div id="mcover" onClick="document.getElementById('mcover').style.display='';" style="">
-				<?= Html::img('@web/img/tishi.png') ?>
+<!--				--><?//= Html::img('@web/img/tishi.png') ?>
+				<?= Html::img($head_imgurl) ?>
 			</div>
 			<div class="header">
 				<div class="left">
